@@ -64,7 +64,7 @@ class IngredientQuantity(models.Model):
         on_delete=models.CASCADE,
         related_name='quantity'
     )
-    ingredients = models.ForeignKey(
+    ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
         related_name='quantity'
@@ -96,3 +96,10 @@ class ShoppingCart(models.Model):
         on_delete=models.CASCADE,
         related_name='carts'
     )
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=['user', 'recipe'], name='unique shopping cart'
+            ),
+        )

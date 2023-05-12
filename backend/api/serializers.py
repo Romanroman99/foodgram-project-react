@@ -61,7 +61,7 @@ class ReducedRecipeSerializer(serializers.ModelSerializer):
 
 class SubscriptionSerializer(CustomUserSerializer):
     recipes = ReducedRecipeSerializer(many=True, read_only=True)
-    recipes_count = serializers.SerializerMethodField(read_only=True)
+    recipes_count = ReducedRecipeSerializer(read_only=True)
 
     class Meta:
         model = User
@@ -71,6 +71,14 @@ class SubscriptionSerializer(CustomUserSerializer):
     @staticmethod
     def get_recipes_count(obj):
         return obj.recipes.count()
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        recipes = obj.recipes.all()
+        recipes_limit = request.query_params.get('recipes_limit')
+        if recipes_limit:
+            recipes = recipes[:int(recipes_limit)]
+        return ReducedRecipeSerializer(recipes, many=True).data
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -83,11 +91,11 @@ class TagSerializer(serializers.ModelSerializer):
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
-        fields = '__all__',
-        read_only_fields = '__all__',
+        fields = ('id', 'name', 'measurement_unit')
+        read_only_fields = ('id', 'name', 'measurement_unit')
 
 
-class IngredientQuantitySerializer(serializers.ModelField):
+class IngredientQuantitySerializer(serializers.Serializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
