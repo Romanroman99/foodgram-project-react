@@ -4,7 +4,7 @@ from drf_extra_fields.fields import Base64ImageField
 
 from recipes.models import (Recipe, Tag, Favorites, Ingredient,
                             IngredientQuantity, ShoppingCart)
-from users.models import User, Subscribers
+from users.models import User
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -50,7 +50,7 @@ class CustomUserSerializer(UserSerializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return Subscribers.objects.filter(user=user, author=obj.id).exists()
+        return user.subscriber.filter(author=obj.id).exists()
 
 
 class ReducedRecipeSerializer(serializers.ModelSerializer):
@@ -92,7 +92,7 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
-        read_only_fields = ('id', 'name', 'measurement_unit')
+        read_only_fields = ('name', 'measurement_unit')
 
 
 class IngredientQuantitySerializer(serializers.Serializer):

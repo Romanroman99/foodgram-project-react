@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import (CustomUserViewSet, SubscribersViewSet, SubscriptionViewSet,
+from .views import (CustomUserViewSet, SubscribersView, SubscriptionView,
                     RecipesViewSet, IngredientsViewSet, TagsViewSet)
 
 router_v1 = DefaultRouter()
@@ -13,12 +13,12 @@ router_v1.register('tags', TagsViewSet, basename='tags')
 urlpatterns = [
     path(
         'users/subscriptions/',
-        SubscriptionViewSet.as_view(),
+        SubscriptionView.as_view(),
         name='subscriptions'
     ),
     path(
         'users/<int:user_id>/subscribe/',
-        SubscribersViewSet.as_view(),
+        SubscribersView.as_view(),
         name='subscribe'
     ),
     path('', include(router_v1.urls)),

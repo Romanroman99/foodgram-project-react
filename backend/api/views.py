@@ -27,12 +27,14 @@ from .pagination import CustomPageNumberPagination
 
 
 class CustomUserViewSet(UserViewSet):
+    """ViewSet для работы с полбзователями"""
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
-class SubscribersViewSet(APIView):
+class SubscribersView(APIView):
+    """Управление подписками"""
     serializer_class = SubscriptionSerializer
     permission_classes = (IsAuthenticated,)
     pagination_class = CustomPageNumberPagination
@@ -78,7 +80,8 @@ class SubscribersViewSet(APIView):
         )
 
 
-class SubscriptionViewSet(ListAPIView):
+class SubscriptionView(ListAPIView):
+    """Список подписок"""
     serializer_class = SubscriptionSerializer
     permission_classes = (IsAuthenticated, )
     pagination_class = CustomPageNumberPagination
@@ -88,21 +91,23 @@ class SubscriptionViewSet(ListAPIView):
 
 
 class TagsViewSet(ReadOnlyModelViewSet):
+    """Работает с тэгами"""
     queryset = Tag.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = TagSerializer
 
 
 class IngredientsViewSet(ReadOnlyModelViewSet):
+    """Работает с тегами"""
     queryset = Ingredient.objects.all()
     permission_classes = (AllowAny, )
     serializer_class = IngredientSerializer
     filter_backends = (IngredientFilter, )
     search_fields = ('^name',)
-    pagination_class = None
 
 
 class RecipesViewSet(ModelViewSet):
+    """Управления рецептами"""
     queryset = Recipe.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
@@ -200,6 +205,7 @@ class RecipesViewSet(ModelViewSet):
 
 
 def create_pdf(obj, item_list):
+    """Создание pdf со списком покупок"""
     pdfmetrics.registerFont(TTFont(
         'TimesNewRoman', MEDIA_ROOT + '/data/TimesNewRoman.ttf', 'UTF-8'
     ))
