@@ -19,7 +19,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options['ingredients']:
-            path = settings.MEDIA_ROOT + '/data/ingredients.csv'
+            path = settings.MEDIA_ROOT + 'media/data/ingredients.csv'
             with open(path, 'r', newline='') as ingredients:
                 ingredients = csv.reader(ingredients)
                 try:
