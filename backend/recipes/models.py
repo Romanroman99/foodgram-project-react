@@ -10,6 +10,18 @@ class Tag(models.Model):
     )
     slug = models.SlugField(max_length=200)
 
+    class Meta:
+        ordering = ('name',)
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+        constraints = (
+            models.UniqueConstraint(
+                fields=['name', 'hex_color', 'slug'], name='unique tag',
+            ),)
+
+    def __str__(self):
+        return self.name
+
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=200)
@@ -70,6 +82,14 @@ class IngredientQuantity(models.Model):
         related_name='quantity'
     )
     quantity = models.PositiveSmallIntegerField()
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=['ingredient', 'recipe'],
+                name='unique ingredient amount'
+            ),
+        )
 
 
 class Favorites(models.Model):
