@@ -43,12 +43,12 @@ class SubscribersView(APIView):
         user_id = self.kwargs.get('user_id')
         if user_id == request.user.id:
             return Response(
-                {'error': 'Нельзя подписаться на себя!'},
+                {'error': 'Нельзя подписаться на себя'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         if Subscribers.objects.filter(
-            user=request.user,
-            author_id=user_id
+                user=request.user,
+                author_id=user_id
         ).exists():
             return Response(
                 {'error': 'Вы уже подписаны на автора!'},
@@ -95,6 +95,7 @@ class TagsViewSet(ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = TagSerializer
+    pagination_class = None
 
 
 class IngredientsViewSet(ReadOnlyModelViewSet):
@@ -104,6 +105,7 @@ class IngredientsViewSet(ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     filter_backends = (IngredientFilter, )
     search_fields = ('^name',)
+    pagination_class = None
 
 
 class RecipesViewSet(ModelViewSet):
@@ -186,17 +188,17 @@ class RecipesViewSet(ModelViewSet):
         ingredients = IngredientQuantity.objects.filter(
             recipe__carts__user=request.user).values_list(
             'ingredient__name', 'ingredient__measurement_unit',
-            'quantity'
+            'amount'
         )
         for item in ingredients:
             name = item[0]
             if name not in item_list:
                 item_list[name] = {
                     'measurement_unit': item[1],
-                    'quantity': item[2]
+                    'amount': item[2]
                 }
             else:
-                item_list[name]['quantity'] += item[2]
+                item_list[name]['amount'] += item[2]
 
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = ('attachment; '
@@ -215,7 +217,7 @@ def create_pdf(obj, item_list):
     page.setFont('TimesNewRoman', size=12)
     height = 725
     for i, (name, data) in enumerate(item_list.items(), 1):
-        page.drawString(70, height, (f'{i}. {name}: {data["quantity"]} '
+        page.drawString(70, height, (f'{i}. {name}: {data["amount"]} '
                                      f'{data["measurement_unit"]}'))
         height -= 25
     page.showPage()

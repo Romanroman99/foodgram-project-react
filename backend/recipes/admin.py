@@ -43,7 +43,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
 @admin.register(IngredientQuantity)
 class IngredientQuantityAdmin(admin.ModelAdmin):
-    list_display = ('id', 'ingredient', 'recipe', 'quantity',)
+    list_display = ('id', 'ingredient', 'recipe', 'amount',)
     empty_value_display = VALUE_DISPLAY
 
 

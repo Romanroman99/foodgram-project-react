@@ -42,6 +42,7 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        related_name='recipes',
         verbose_name='Автор'
     )
     name = models.CharField(max_length=200)
@@ -74,14 +75,14 @@ class IngredientQuantity(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='quantity'
+        related_name='amount'
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='quantity'
+        related_name='amount'
     )
-    quantity = models.PositiveSmallIntegerField()
+    amount = models.PositiveSmallIntegerField()
 
     class Meta:
         constraints = (

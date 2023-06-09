@@ -61,7 +61,7 @@ class ReducedRecipeSerializer(serializers.ModelSerializer):
 
 class SubscriptionSerializer(CustomUserSerializer):
     recipes = ReducedRecipeSerializer(many=True, read_only=True)
-    recipes_count = ReducedRecipeSerializer(read_only=True)
+    recipes_count = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
@@ -104,7 +104,7 @@ class IngredientQuantitySerializer(serializers.Serializer):
 
     class Meta:
         model = IngredientQuantity
-        fields = ('id', 'name', 'measurement_unit', 'quantity')
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class RecipeListSerializer(serializers.ModelSerializer):
@@ -139,11 +139,11 @@ class RecipeListSerializer(serializers.ModelSerializer):
 
 class PlusIngredientSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
-    quantity = serializers.IntegerField()
+    amount = serializers.IntegerField()
 
     class Meta:
         model = IngredientQuantity
-        fields = ('id', 'quantity')
+        fields = ('id', 'amount')
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -157,10 +157,10 @@ class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
-            'id', 'author', 'ingredients', 'tags',
+            'id', 'tags', 'author', 'ingredients',
             'image', 'name', 'text', 'cooking_time'
         )
-    
+
     def validate(self, data):
         ingredients = data['ingredients']
         ingredients_list = []
@@ -171,14 +171,14 @@ class RecipeSerializer(serializers.ModelSerializer):
                     'ingredients': 'Ингредиенты должны быть уникальными!'
                 })
             ingredients_list.append(ingredient_id)
-            amount = ingredient['quantity']
+            amount = ingredient['amount']
             if int(amount) < 0:
                 raise serializers.ValidationError({
-                    'quantity': 'Количество ингредиента должно быть больше нуля!'
+                    'amount': 'Количество ингредиента должно быть больше нуля!'
                 })
             if int(amount) == 0:
                 raise serializers.ValidationError({
-                    'quantity': 'Укажите хотя бы один ингредиент!'
+                    'amount': 'Укажите хотя бы один ингредиент!'
                 })
 
         tags = data['tags']
@@ -206,20 +206,15 @@ class RecipeSerializer(serializers.ModelSerializer):
         for ingredient in ingredients:
             IngredientQuantity.objects.create(
                 recipe=recipe, ingredient=ingredient['id'],
-                quantity=ingredient['quantity']
+                amount=ingredient['amount']
             )
 
-    @staticmethod
-    def create_tags(tags, recipe):
-        for tag in tags:
-            recipe.tags.add(tag)
-
     def create(self, validated_data):
-        author = self.context.get('request').user
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
+        author = self.context.get('request').user
         recipe = Recipe.objects.create(author=author, **validated_data)
-        self.create_tags(tags, recipe)
+        recipe.tags.set(tags)
         self.create_ingredients(ingredients, recipe)
         return recipe
 
