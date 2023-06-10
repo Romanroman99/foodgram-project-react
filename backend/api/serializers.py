@@ -60,7 +60,7 @@ class ReducedRecipeSerializer(serializers.ModelSerializer):
 
 
 class SubscriptionSerializer(CustomUserSerializer):
-    recipes = ReducedRecipeSerializer(many=True, read_only=True)
+    recipes = serializers.SerializerMethodField(read_only=True)
     recipes_count = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -95,7 +95,7 @@ class IngredientSerializer(serializers.ModelSerializer):
         read_only_fields = ('name', 'measurement_unit')
 
 
-class IngredientQuantitySerializer(serializers.Serializer):
+class IngredientQuantitySerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
@@ -209,12 +209,17 @@ class RecipeSerializer(serializers.ModelSerializer):
                 amount=ingredient['amount']
             )
 
+    @staticmethod
+    def create_tags(tags, recipe):
+        for tag in tags:
+            recipe.tags.add(tag)
+
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         author = self.context.get('request').user
         recipe = Recipe.objects.create(author=author, **validated_data)
-        recipe.tags.set(tags)
+        self.create_tags(tags, recipe)
         self.create_ingredients(ingredients, recipe)
         return recipe
 
