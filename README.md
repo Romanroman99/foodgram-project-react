@@ -1,15 +1,3 @@
-# Для ревью:
-Адрес сервера:
-[http://158.160.32.16/](http://158.160.32.16/)
-
-* Логин:
-```bash
-admin@mail.ru
-```
-* Пароль:
-```bash
-admin
-```
 
 # Foodgram - Продуктовый помощник
 ![Foodgram workflow](https://github.com/Edw125/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)  
